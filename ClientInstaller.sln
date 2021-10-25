@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Blend for Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameInstaller", "GameInstaller\GameInstaller.csproj", "{7AC944E8-3DA5-487B-8B4A-4DE6AF2D86A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientInstaller", "ClientInstaller\ClientInstaller.csproj", "{7AC944E8-3DA5-487B-8B4A-4DE6AF2D86A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +18,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F2F4A393-BC4C-4FF5-BC65-177D3583854F}
 	EndGlobalSection
 EndGlobal

@@ -15,7 +15,7 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
 
-namespace GameInstaller
+namespace ClientInstaller
 {
     /// <summary>
     /// Interaction logic for UninstallerWindow.xaml

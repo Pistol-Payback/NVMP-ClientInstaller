@@ -16,7 +16,7 @@ using System.Reflection;
 using System.IO;
 using System.Diagnostics;
 
-namespace GameInstaller
+namespace ClientInstaller
 {
     /// <summary>
     /// Interaction logic for InstallerWindow.xaml
@@ -69,7 +69,7 @@ namespace GameInstaller
 
         private string InstallClientFiles(string GameDir)
         {
-            ExtractEmbeddedResource(GameDir, "GameInstaller.Res", new List<string> { "nvmp_launcher.exe" });
+            ExtractEmbeddedResource(GameDir, "ClientInstaller.Res", new List<string> { "nvmp_launcher.exe" });
             System.IO.File.Copy(Assembly.GetEntryAssembly().Location, GameDir + "\\nvmp_installer.exe", true);
 
             return GameDir + "\\nvmp_installer.exe";

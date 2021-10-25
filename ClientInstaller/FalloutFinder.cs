@@ -7,7 +7,7 @@ using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.IO;
 
-namespace GameInstaller
+namespace ClientInstaller
 {
     //-------------------------------------------------
     // Finds the machine's Fallout: New Vegas storage

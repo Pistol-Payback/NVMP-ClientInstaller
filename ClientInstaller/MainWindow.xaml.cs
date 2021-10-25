@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 using System.IO;
 using System.Threading;
 
-namespace GameInstaller
+namespace ClientInstaller
 {
     public class InstallStatus
     {
