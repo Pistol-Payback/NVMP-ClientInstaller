@@ -50,7 +50,7 @@ namespace ClientInstaller
         private void UninstallRegistry()
         {
             using (RegistryKey parent = Registry.LocalMachine.OpenSubKey(
-                         SharedUtil.UninstallRegKeyPath, true))
+                         SharedUtil.RegKeyPath, true))
             {
                 if (parent == null)
                 {
@@ -58,7 +58,7 @@ namespace ClientInstaller
                 }
                 try
                 {
-                    string guidText = SharedUtil.UninstallGUID;
+                    string guidText = SharedUtil.ProgramGUID;
                     parent.DeleteSubKey(guidText, true);
 
                 }

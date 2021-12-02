@@ -16,7 +16,7 @@ namespace ClientInstaller
 
     public class SharedUtil
     {
-        public static string UninstallRegKeyPath = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
-        public static string UninstallGUID       = @"{3FAA6664-C4C1-4754-8D5F-2B7C621E9297}";
+        public static string RegKeyPath   = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+        public static string ProgramGUID  = @"{3FAA6664-C4C1-4754-8D5F-2B7C621E9297}";
     }
 }

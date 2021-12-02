@@ -14,29 +14,77 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Threading;
+using Microsoft.Win32;
 
 namespace ClientInstaller
 {
     public class InstallStatus
     {
-        private bool IsFalloutInstalled;     // Should be true.
-        private bool IsNVMPInstalled;        // Should be false.
+        private string FalloutDirectoryOverride = null;
+
+        public string FalloutDirectory
+        {
+            get
+            {
+                if (FalloutDirectoryOverride != null)
+                    return FalloutDirectoryOverride;
+
+                return FalloutFinder.GameDir();
+            }
+
+            set
+            {
+                FalloutDirectoryOverride = value;
+            }
+        }
+
+        public bool IsFalloutInstalled;     // Should be true.
+        public bool IsNVMPInstalled
+        {
+            get
+            {
+                using (RegistryKey parent = Registry.LocalMachine.OpenSubKey(
+                             SharedUtil.RegKeyPath, true))
+                {
+                    if (parent == null)
+                    {
+                        return false;
+                    }
+
+                    try
+                    {
+                        RegistryKey key = null;
+
+                        try
+                        {
+                            string guidText = SharedUtil.ProgramGUID;
+                            key = parent.OpenSubKey(guidText, false);
+                            return key != null;
+                        }
+                        finally
+                        {
+                            if (key != null)
+                            {
+                                key.Close();
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                return false;
+            }
+        }
 
         public void Check()
         {
             IsFalloutInstalled = true;
-            IsNVMPInstalled    = false;
 
-            string FalloutDirectory = FalloutFinder.GameDir();
             if (FalloutDirectory == null)
             {
                 IsFalloutInstalled = false;
-                return;
-            }
-
-            if (File.Exists(FalloutDirectory + "\\nvmp_launcher.exe"))
-            {
-                IsNVMPInstalled = true;
                 return;
             }
         }
@@ -63,7 +111,7 @@ namespace ClientInstaller
     /// </summary>
     public partial class MainWindow : Window
     {
-        private InstallStatus Status;
+        private InstallStatus      Status;
         private InstallerWindow    InstallerWindowInstance   = null;
         private UninstallerWindow  UninstallerWindowInstance = null;
 
@@ -75,7 +123,7 @@ namespace ClientInstaller
 
             try {
                 Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Normal, new ThreadStart( ()=>
-                    InstallerWindowInstance.Install(this, FalloutFinder.GameDir() )));
+                    InstallerWindowInstance.Install(this, Status.FalloutDirectory)));
 
             }
             catch (Exception e)
@@ -96,7 +144,7 @@ namespace ClientInstaller
             Close();
 
             try {
-                UninstallerWindowInstance.Uninstall( FalloutFinder.GameDir() );
+                UninstallerWindowInstance.Uninstall( Status.FalloutDirectory );
             } catch (Exception e)
             {
                 MessageBox.Show("Uninstallation Error: " + e.Message);
@@ -119,13 +167,10 @@ namespace ClientInstaller
 
         public MainWindow()
         {
-            bool UninstallRequested;
-            UninstallRequested = IsUninstallRequested();
-
             InitializeComponent();
 
             // Uninstall the program.
-            if (UninstallRequested)
+            if ( IsUninstallRequested() )
             {
                 DoUninstall();
                 return;
@@ -135,15 +180,43 @@ namespace ClientInstaller
             Status = new InstallStatus();
             Status.Check();
 
-            string ErrorMessage;
-
             if (!Status.CanInstall())
             {
-                ErrorMessage = Status.GetMessage();
+                if (Status.IsNVMPInstalled)
+                {
+                    var result = MessageBox.Show("ERROR: NV:MP is already installed, would you like to uninstall it?"
+                        , "NV:MP Installer"
+                        , MessageBoxButton.OKCancel);
 
-                System.Windows.MessageBox.Show("ERROR: " + ErrorMessage);
+                    if (result == MessageBoxResult.OK)
+                    {
+                        DoUninstall();
+                        return;
+                    }
+                }
+
+                if (!Status.IsFalloutInstalled)
+                {
+                    var result = MessageBox.Show("ERROR: Could not find an installation of Fallout: New Vegas. Would you like to manually select a folder to use for installation?"
+                        , "NV:MP Installer"
+                        , MessageBoxButton.OKCancel);
+
+                    if (result == MessageBoxResult.OK)
+                    {
+                        using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+                        {
+                            dialog.ShowDialog();
+                            if (dialog.SelectedPath != null)
+                            {
+                                Status.FalloutDirectory = dialog.SelectedPath;
+                                return;
+                            }
+                        }
+                    }
+                }
+
+                MessageBox.Show( Status.GetMessage(), "NV:MP Installer" );
                 Close();
-                return;
             }
         }
     }

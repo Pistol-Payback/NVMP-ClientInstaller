@@ -79,7 +79,7 @@ namespace ClientInstaller
         private void InstallClientRegistry(string UninstallerLocation)
         {
             using (RegistryKey parent = Registry.LocalMachine.OpenSubKey(
-                         SharedUtil.UninstallRegKeyPath, true))
+                         SharedUtil.RegKeyPath, true))
             {
                 if (parent == null)
                 {
@@ -91,13 +91,13 @@ namespace ClientInstaller
 
                     try
                     {
-                        string guidText = SharedUtil.UninstallGUID;
+                        string guidText = SharedUtil.ProgramGUID;
                         key = parent.OpenSubKey(guidText, true) ??
                               parent.CreateSubKey(guidText);
 
                         if (key == null)
                         {
-                            throw new Exception(String.Format("Unable to create uninstaller '{0}\\{1}'", SharedUtil.UninstallRegKeyPath, guidText));
+                            throw new Exception(String.Format("Unable to create uninstaller '{0}\\{1}'", SharedUtil.RegKeyPath, guidText));
                         }
 
                         Assembly asm = GetType().Assembly;
