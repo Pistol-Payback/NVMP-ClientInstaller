@@ -32,23 +32,29 @@ namespace ClientInstaller
         {
             List<string> folders = new List<string>();
 
-            string steamFolder = SteamFolder();
-            folders.Add(steamFolder);
-
-            string configFile = steamFolder + "\\config\\config.vdf";
-
-            Regex regex = new Regex("BaseInstallFolder[^\"]*\"\\s*\"([^\"]*)\"");
-            using (StreamReader reader = new StreamReader(configFile))
+            try
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                string steamFolder = SteamFolder();
+                folders.Add(steamFolder);
+
+                string configFile = steamFolder + "\\config\\config.vdf";
+
+                Regex regex = new Regex("BaseInstallFolder[^\"]*\"\\s*\"([^\"]*)\"");
+                using (StreamReader reader = new StreamReader(configFile))
                 {
-                    Match match = regex.Match(line);
-                    if (match.Success)
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        folders.Add(Regex.Unescape(match.Groups[1].Value));
+                        Match match = regex.Match(line);
+                        if (match.Success)
+                        {
+                            folders.Add(Regex.Unescape(match.Groups[1].Value));
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
             }
 
             return folders;
