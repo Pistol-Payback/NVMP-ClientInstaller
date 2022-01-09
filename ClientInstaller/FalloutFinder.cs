@@ -15,49 +15,35 @@ namespace ClientInstaller
     //-------------------------------------------------
     public static class FalloutFinder
     {
-        //-------------------------------------------------
-        // Gets the Steam installation path.
-        //-------------------------------------------------
-        public static string SteamFolder()
+        static private string[][] RegistryKeys =
         {
-            RegistryKey steamKey = Registry.LocalMachine.OpenSubKey("Software\\Valve\\Steam") ?? Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\Valve\\Steam");
-            return steamKey.GetValue("InstallPath").ToString();
-        }
+            new string[] { "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 22380", "InstallLocation" },
+            new string[] { "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 22490", "InstallLocation" },
+            new string[] { "Software\\GOG.com\\Games\\1312824873", "path" },
+            new string[] { "Software\\GOG.com\\Games\\1454587428", "path" },
+        };
 
-        //-------------------------------------------------
-        // Gathers all stores library folders in the 
-        // config.vdf file.
-        //-------------------------------------------------
-        public static List<string> LibraryFolders()
+        private static string FindDiscoverableGame()
         {
-            List<string> folders = new List<string>();
-
-            try
+            foreach (var key in RegistryKeys)
             {
-                string steamFolder = SteamFolder();
-                folders.Add(steamFolder);
-
-                string configFile = steamFolder + "\\config\\config.vdf";
-
-                Regex regex = new Regex("BaseInstallFolder[^\"]*\"\\s*\"([^\"]*)\"");
-                using (StreamReader reader = new StreamReader(configFile))
+                using (var regKey = Registry.LocalMachine.OpenSubKey(key[0]))
                 {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
+                    if (regKey != null)
                     {
-                        Match match = regex.Match(line);
-                        if (match.Success)
+                        var value = (string)regKey.GetValue(key[1]);
+                        if (value != null)
                         {
-                            folders.Add(Regex.Unescape(match.Groups[1].Value));
+                            if (value.Length != 0)
+                            {
+                                if (File.Exists($"{value}\\FalloutNV.exe"))
+                                    return value;
+                            }
                         }
                     }
                 }
             }
-            catch (Exception)
-            {
-            }
-
-            return folders;
+            return null;
         }
 
         //-------------------------------------------------
@@ -66,30 +52,7 @@ namespace ClientInstaller
         //-------------------------------------------------
         public static string GameDir()
         {
-            var appFolders = LibraryFolders().Select(x => x + "\\SteamApps\\common");
-
-            foreach (var folder in appFolders)
-            {
-                try
-                {
-                    var matches = Directory.GetDirectories(folder, "Fallout New Vegas");
-                    if (matches.Length >= 1)
-                    {
-                        return matches[0];
-                    }
-
-                    matches = Directory.GetDirectories(folder, "Fallout New Vegas enplczru");
-                    if (matches.Length >= 1)
-                        return matches[0];
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    //continue;
-                }
-
-            }
-
-            return null;
+            return FindDiscoverableGame();
         }
     }
 }

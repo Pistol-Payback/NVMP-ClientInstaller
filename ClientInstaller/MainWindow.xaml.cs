@@ -38,7 +38,8 @@ namespace ClientInstaller
             }
         }
 
-        public bool IsFalloutInstalled;     // Should be true.
+        public bool IsFalloutInstalled => Directory.Exists(FalloutDirectory);
+
         public bool IsNVMPInstalled
         {
             get
@@ -75,17 +76,6 @@ namespace ClientInstaller
                 }
 
                 return false;
-            }
-        }
-
-        public void Check()
-        {
-            IsFalloutInstalled = true;
-
-            if (FalloutDirectory == null)
-            {
-                IsFalloutInstalled = false;
-                return;
             }
         }
 
@@ -178,7 +168,6 @@ namespace ClientInstaller
 
             // Install the program.
             Status = new InstallStatus();
-            Status.Check();
 
             if (!Status.CanInstall())
             {
