@@ -44,16 +44,16 @@ namespace ClientInstaller
         {
             get
             {
-                using (RegistryKey parent = Registry.LocalMachine.OpenSubKey(
-                             SharedUtil.RegKeyPath, true))
+                try
                 {
+                    using (RegistryKey parent = Registry.LocalMachine.OpenSubKey(
+                             SharedUtil.RegKeyPath, true))
+                    {
                     if (parent == null)
                     {
                         return false;
                     }
 
-                    try
-                    {
                         RegistryKey key = null;
 
                         try
@@ -70,9 +70,9 @@ namespace ClientInstaller
                             }
                         }
                     }
-                    catch (Exception)
-                    {
-                    }
+                }
+                catch (Exception)
+                {
                 }
 
                 return false;
@@ -107,6 +107,12 @@ namespace ClientInstaller
 
         public void OnInstallClick(object sender, RoutedEventArgs evt)
         {
+            if (Status.FalloutDirectory == null)
+            {
+                MessageBox.Show("Could not start the installation as the Fallout directory seems to be invalid!");
+                return;
+            }
+
             InstallerWindowInstance = new InstallerWindow();
             InstallerWindowInstance.Show();
             Hide();
@@ -120,7 +126,7 @@ namespace ClientInstaller
             {
                 InstallerWindowInstance.Close();
 
-                MessageBox.Show("Installation Error: " + e.Message);
+                MessageBox.Show("Installation Error: " + e.ToString());
                 Show();
             }
 
@@ -137,7 +143,7 @@ namespace ClientInstaller
                 UninstallerWindowInstance.Uninstall( Status.FalloutDirectory );
             } catch (Exception e)
             {
-                MessageBox.Show("Uninstallation Error: " + e.Message);
+                MessageBox.Show("Uninstallation Error: " + e.ToString());
             }
 
             UninstallerWindowInstance.Close();
@@ -159,15 +165,15 @@ namespace ClientInstaller
         {
             InitializeComponent();
 
+            // Install the program.
+            Status = new InstallStatus();
+
             // Uninstall the program.
             if ( IsUninstallRequested() )
             {
                 DoUninstall();
                 return;
             }
-
-            // Install the program.
-            Status = new InstallStatus();
 
             if (!Status.CanInstall())
             {
@@ -194,8 +200,8 @@ namespace ClientInstaller
                     {
                         using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
                         {
-                            dialog.ShowDialog();
-                            if (dialog.SelectedPath != null)
+                            var dresult = dialog.ShowDialog();
+                            if (dresult == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
                             {
                                 Status.FalloutDirectory = dialog.SelectedPath;
                                 return;

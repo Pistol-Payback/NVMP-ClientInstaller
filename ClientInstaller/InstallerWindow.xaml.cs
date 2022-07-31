@@ -70,7 +70,13 @@ namespace ClientInstaller
         private string InstallClientFiles(string GameDir)
         {
             ExtractEmbeddedResource(GameDir, "ClientInstaller.Res", new List<string> { "nvmp_launcher.exe" });
-            System.IO.File.Copy(Assembly.GetEntryAssembly().Location, GameDir + "\\nvmp_installer.exe", true);
+            try
+            {
+                File.Copy(Assembly.GetEntryAssembly().Location, GameDir + "\\nvmp_installer.exe", true);
+            } catch (Exception)
+            {
+                return null;
+            }
 
             return GameDir + "\\nvmp_installer.exe";
         }
@@ -139,6 +145,9 @@ namespace ClientInstaller
             StatusLabel.Content = "Installing client files...";
 
             string UninstallFile = InstallClientFiles( GameDir );
+            if (UninstallFile == null)
+                throw new Exception("Could not copy over the uninstallation program.");
+
             System.Threading.Thread.Sleep( 500 );
 
             StatusLabel.Content = "Adding program to registry...";

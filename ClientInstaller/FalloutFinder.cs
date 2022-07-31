@@ -25,24 +25,35 @@ namespace ClientInstaller
 
         private static string FindDiscoverableGame()
         {
-            foreach (var key in RegistryKeys)
+            try
             {
-                using (var regKey = Registry.LocalMachine.OpenSubKey(key[0]))
+                foreach (var key in RegistryKeys)
                 {
-                    if (regKey != null)
+                    using (var regKey = Registry.LocalMachine.OpenSubKey(key[0]))
                     {
-                        var value = (string)regKey.GetValue(key[1]);
-                        if (value != null)
+                        if (regKey != null)
                         {
-                            if (value.Length != 0)
+                            var value = (string)regKey.GetValue(key[1]);
+                            if (value != null)
                             {
-                                if (File.Exists($"{value}\\FalloutNV.exe"))
-                                    return value;
+                                if (value.Length != 0)
+                                {
+                                    if (File.Exists($"{value}\\FalloutNV.exe"))
+                                        return value;
+                                }
                             }
                         }
                     }
                 }
+            } catch (Exception)
+            {
             }
+
+            if (File.Exists($"{Directory.GetCurrentDirectory()}\\FalloutNV.exe"))
+            {
+                return Directory.GetCurrentDirectory();
+            }
+
             return null;
         }
 

@@ -120,8 +120,19 @@ namespace ClientInstaller
 
             }
 
-            UninstallRegistry();
-            UninstallStartMenu();
+            try
+            {
+                UninstallRegistry();
+            } catch (Exception)
+            {
+            }
+
+            try
+            {
+                UninstallStartMenu();
+            } catch (Exception)
+            {
+            }
 
             Close();
 
