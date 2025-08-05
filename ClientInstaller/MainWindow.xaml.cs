@@ -132,7 +132,21 @@ namespace ClientInstaller
 
 
         }
+        private void OpenSearchWindow_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                dlg.SelectedPath = Status.FalloutDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
 
+                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK
+                    && !string.IsNullOrWhiteSpace(dlg.SelectedPath))
+                {
+                    // override status and display it
+                    Status.FalloutDirectory = dlg.SelectedPath;
+                    FoundFilePathTextBox.Text = dlg.SelectedPath;
+                }
+            }
+        }
         public void DoUninstall()
         {
             UninstallerWindowInstance = new UninstallerWindow();
@@ -167,6 +181,9 @@ namespace ClientInstaller
 
             // Install the program.
             Status = new InstallStatus();
+
+            //Show file path in UI
+            FoundFilePathTextBox.Text = Status.FalloutDirectory ?? "";
 
             // Uninstall the program.
             if ( IsUninstallRequested() )
